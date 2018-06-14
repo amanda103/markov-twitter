@@ -95,6 +95,15 @@ def tweet(chains):
         print(status.text)
         answer = input("Would you like to tweet again? y/n > ")
 
+def update_image(image):
+    api = twitter.Api(
+        consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+        consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+        access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+        access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+        )
+    api.UpdateImage(image, include_entities=False, skip_status=False)
+
 
 # Get the filenames from the user through a command line prompt, ex:
 # python markov.py green-eggs.txt shakespeare.txt
@@ -112,3 +121,6 @@ chains = make_chains(text)
 tweet(chains)
 
 
+my_prof = "butterfly.jpeg"
+
+update_image(my_prof)
