@@ -5,6 +5,13 @@ import sys
 from random import choice
 import twitter
 
+api = twitter.Api(
+    consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+    consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+    access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+    access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+    )
+
 
 def open_and_read_file(filenames):
     """Take list of files. Open them, read them, and return one long string."""
@@ -47,6 +54,7 @@ def make_text(chains):
     keys = list(chains.keys())
     key = choice(keys)
     words = [key[0], key[1]]
+    char_count = len(key[0]) + len(key[1])+1
     while key in chains:
         # Keep looping until we have a key that isn't in the chains
         # (which would mean it was the end of our original text).
@@ -55,7 +63,11 @@ def make_text(chains):
         # it would run for a very long time.
 
         word = choice(chains[key])
-        words.append(word)
+        char_count = char_count + 1 + len(word)
+        if char_count < 280:
+            words.append(word)
+        else:
+            break
         key = (key[1], word)
 
     return " ".join(words)
@@ -63,12 +75,25 @@ def make_text(chains):
 
 def tweet(chains):
     """Create a tweet and send it to the Internet."""
-
+    api = twitter.Api(
+        consumer_key=os.environ['TWITTER_CONSUMER_KEY'],
+        consumer_secret=os.environ['TWITTER_CONSUMER_SECRET'],
+        access_token_key=os.environ['TWITTER_ACCESS_TOKEN_KEY'],
+        access_token_secret=os.environ['TWITTER_ACCESS_TOKEN_SECRET']
+        )
+    
+    print(api.VerifyCredentials())
+    
     # Use Python os.environ to get at environmental variables
     # Note: you must run `source secrets.sh` before running this file
     # to make sure these environmental variables are set.
-
-    pass
+    
+    answer = input("Would you like to tweet y/n > ")
+    while answer != "n":
+        text = make_text(chains)
+        status = api.PostUpdate(text)
+        print(status.text)
+        answer = input("Would you like to tweet again? y/n > ")
 
 
 # Get the filenames from the user through a command line prompt, ex:
@@ -83,3 +108,7 @@ chains = make_chains(text)
 
 # Your task is to write a new function tweet, that will take chains as input
 # tweet(chains)
+
+tweet(chains)
+
+
